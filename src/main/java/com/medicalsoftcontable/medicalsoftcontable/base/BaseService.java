@@ -22,13 +22,17 @@ public abstract class BaseService<T> {
     return baseRepository.save(object);
   }
 
-  public T findById(Long id) {
-    Optional<T> optional = baseRepository.findById(id);
-    if (optional.isPresent()) {
-      return optional.get();
-    } else {
-      return null;
-    }
+  public Optional<T> findById(Long id) {
+    return baseRepository.findById(id); 
+}
+
+  public void delete(T object) {
+    baseRepository.delete(object);
+  }
+
+  // Si prefieres el delete por ID
+  public void deleteById(Long id) {
+    baseRepository.deleteById(id);
   }
 
 }

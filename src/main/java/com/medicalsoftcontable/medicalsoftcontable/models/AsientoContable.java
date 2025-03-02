@@ -27,18 +27,17 @@ public class AsientoContable extends BaseModel {
   @NotEmpty
   private String numeroAsiento;
 
+
   @NotNull
-  @NotEmpty
   private Date fechaAsiento;
 
   private String descripcion;
 
   @NotNull
-  @NotEmpty
+
   private BigDecimal totalDebe;
 
-  @NotNull
-  @NotEmpty
+  @NotNull  
   private BigDecimal totalHaber;
 
   private String estado;

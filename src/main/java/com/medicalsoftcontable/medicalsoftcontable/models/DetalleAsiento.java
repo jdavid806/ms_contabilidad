@@ -35,5 +35,9 @@ public class DetalleAsiento extends BaseModel {
   @ManyToOne
   @JoinColumn(name = "asiento_contable")
   private AsientoContable asiento_contable;
+  
+  @ManyToOne
+    @JoinColumn(name = "cuenta_contable_id", nullable = false)
+    private CuentaContable cuentaContable;
 
 }

@@ -1,18 +1,19 @@
 package com.medicalsoftcontable.medicalsoftcontable.models;
 
 import java.math.BigDecimal;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.medicalsoftcontable.medicalsoftcontable.base.BaseModel;
 import com.medicalsoftcontable.medicalsoftcontable.enums.TipoCuenta;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,32 +26,39 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CuentaContable extends BaseModel {
 
-  @NotNull
-  @NotEmpty
-  private String codigoCuenta;
+    @NotNull(message = "El código de cuenta es obligatorio")
+    @Column(unique = true, nullable = false)
+    private String codigoCuenta;
 
-  @NotNull
-  @NotEmpty
-  private String nombreCuenta;
+    @NotNull(message = "El nombre de la cuenta es obligatorio")
+    @Column(nullable = false)
+    private String nombreCuenta;
 
-  private TipoCuenta tipoCuenta;
+    @NotNull(message = "El tipo de cuenta es obligatorio")
+    @Column(nullable = false)
+    private TipoCuenta tipoCuenta; // Enum: ACTIVO, PASIVO, PATRIMONIO, INGRESO, GASTO, AJUSTES
 
-  @NotEmpty
-  @NotNull
-  @Min(1)
-  private int usuarioId;
+    //Agregar tipo de cuenta (deudora, transaccionales, acredora, impuesto)
 
-  @NotEmpty
-  @NotNull
-  private BigDecimal saldoInicial;
+    @NotNull(message = "El usuario es obligatorio")
+    @Min(value = 1, message = "El ID del usuario debe ser mayor a 0")
+    @Column(nullable = false)
+    private int usuarioId;
 
-  private Boolean estado;
+    @NotNull(message = "El saldo inicial es obligatorio")
+    @DecimalMin(value = "0.00", message = "El saldo inicial no puede ser negativo")
+    @Column(nullable = false)
+    private BigDecimal saldoInicial;
 
-  @OneToMany(mappedBy= "cuenta_contable")
-  private Set<DetalleAsiento> detalles_asientos;
+    @NotNull(message = "El estado es obligatorio")
+    private Boolean estado;
 
-  @ManyToOne
-  @JoinColumn(name = "factura_id")
-  private Factura factura_id;
+    @OneToMany(mappedBy = "cuentaContable", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DetalleAsiento> detallesAsientos = new ArrayList<>();
+
+    // @OneToMany(mappedBy = "cuentaContable", cascade = CascadeType.ALL, orphanRemoval = true)
+    // private Set<Factura> facturas;
+    
 
 }
+

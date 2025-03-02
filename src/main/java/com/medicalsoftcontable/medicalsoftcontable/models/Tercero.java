@@ -2,10 +2,12 @@ package com.medicalsoftcontable.medicalsoftcontable.models;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.medicalsoftcontable.medicalsoftcontable.base.BaseModel;
 import com.medicalsoftcontable.medicalsoftcontable.enums.TipoTerceros;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -28,11 +30,18 @@ public class Tercero extends BaseModel {
 
   @NotNull
   @NotEmpty
-  private TipoTerceros tipo;
+  private String apellidos;
 
   @NotNull
+  private TipoTerceros tipo;
+
   @NotEmpty
+  @NotNull
   private String identificacion;
+
+  @NotEmpty
+  @NotNull
+  private String numeroIdentificacion;
 
   @NotNull
   @NotEmpty
@@ -40,9 +49,21 @@ public class Tercero extends BaseModel {
 
   @NotNull
   @NotEmpty
+  private String direccion;
+
+  @NotNull
+  @NotEmpty
   private String correoContacto;
 
-  @OneToMany(mappedBy = "tercero_id", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Factura> facturas;
+  @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+  private Boolean responsableIVA;
+
+  @NotNull
+  @NotEmpty
+  private String ciudad;
+
+@OneToMany(mappedBy = "tercero", cascade = CascadeType.ALL)
+@JsonManagedReference  // Indica el lado principal de la relación
+private List<Factura> facturas;
 
 }

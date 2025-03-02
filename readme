@@ -1,0 +1,30 @@
+INSTRUCCIONES 
+
+
+1. Debido a algunos cambios en las relaciones de las tablas, lo recomendable es borrar la bd y crear una nueva con el nombre "medical_contable"
+
+2. en el carpeta main/resources cambiar el archivo aplication.properties por las credenciales de su bd postgres:
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/medical_contable
+spring.datasource.username=suUsuarioDepostgress
+spring.datasource.password=suContraseña de postgreess
+
+
+# Configuración de Hibernate (JPA)
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+spring.mvc.servlet.path=/api/v1/accounting
+
+spring.jpa.properties.hibernate.format_sql=true
+logging.level.org.hibernate.SQL=DEBUG
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+
+
+3.Construir el build del proyecto, desde la carpeta raiz ejecutar ./gradlew build
+ en caso de dar error con los test ejecutar ./gradlew build -x test
+
+
+4.Ejecutar el docker-compose
+
