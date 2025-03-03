@@ -1,4 +1,4 @@
-package com.medicalsoftcontable.medicalsoftcontable.exceptions;
+package com.medicalsoftcontable.medicalsoftcontable.config.exceptions;
 
 import java.nio.file.AccessDeniedException;
 import java.sql.SQLException;

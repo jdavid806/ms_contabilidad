@@ -2,11 +2,11 @@ package com.medicalsoftcontable.medicalsoftcontable.models;
 
 import com.medicalsoftcontable.medicalsoftcontable.base.BaseModel;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,20 +17,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class LibroContable extends BaseModel{
-  
+public class LibroContable extends BaseModel {
+
   @NotNull
-  @NotEmpty
+  @Column(nullable = false)
   private String nombreLibro;
 
   private String descripcion;
 
   @ManyToOne
-  @JoinColumn(name = "asiento_id")
-  private AsientoContable asiento_id;
+  @JoinColumn(name = "asiento_contable_id", nullable = false)
+  private AsientoContable asientoContable;
 
   @ManyToOne
-  @JoinColumn(name = "perido_id")
-  private PeriodoFiscal perido_id;
-
+  @JoinColumn(name = "periodo_fiscal_id", nullable = false)
+  private PeriodoFiscal periodoFiscal;
 }

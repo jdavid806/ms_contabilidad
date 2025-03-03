@@ -1,4 +1,4 @@
-package com.medicalsoftcontable.medicalsoftcontable.exceptions;
+package com.medicalsoftcontable.medicalsoftcontable.config.exceptions;
 
 import java.time.LocalDateTime;
 

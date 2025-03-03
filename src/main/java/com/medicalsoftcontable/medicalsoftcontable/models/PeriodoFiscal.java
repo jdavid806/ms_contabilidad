@@ -1,5 +1,6 @@
 package com.medicalsoftcontable.medicalsoftcontable.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.medicalsoftcontable.medicalsoftcontable.base.BaseModel;
@@ -40,7 +41,7 @@ public class PeriodoFiscal extends BaseModel {
 
   private String estado;
 
-  @OneToMany(mappedBy = "perido_id", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<LibroContable> libros_contables;
+ @OneToMany(mappedBy = "periodoFiscal", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LibroContable> librosContables = new ArrayList<>();
 
 }

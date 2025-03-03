@@ -30,7 +30,7 @@ public class FacturaService extends BaseService<Factura> {
     private final FacturaRepository facturaRepository;
     private final TerceroRepository terceroRepository;
     private final InventarioRepository inventarioRepository;
-    private final ProductoRepository productoRepository;
+ 
 
     public FacturaService(
             ProductoRepository productoRepository,
@@ -41,7 +41,7 @@ public class FacturaService extends BaseService<Factura> {
         this.facturaRepository = facturaRepository;
         this.terceroRepository = terceroRepository;
         this.inventarioRepository = inventarioRepository;
-        this.productoRepository = productoRepository;
+      
     }
 
     public FacturaRequestDTO crearFactura(FacturaRequestDTO facturaRequestDTO) {

@@ -10,11 +10,14 @@ import com.medicalsoftcontable.medicalsoftcontable.enums.TipoCuenta;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class CuentaContable extends BaseModel {
 
     @NotNull(message = "El código de cuenta es obligatorio")
@@ -35,10 +39,9 @@ public class CuentaContable extends BaseModel {
     private String nombreCuenta;
 
     @NotNull(message = "El tipo de cuenta es obligatorio")
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TipoCuenta tipoCuenta; // Enum: ACTIVO, PASIVO, PATRIMONIO, INGRESO, GASTO, AJUSTES
-
-    //Agregar tipo de cuenta (deudora, transaccionales, acredora, impuesto)
+    private TipoCuenta tipoCuenta; // Enum: ACTIVO, PASIVO, PATRIMONIO, INGRESO, GASTO
 
     @NotNull(message = "El usuario es obligatorio")
     @Min(value = 1, message = "El ID del usuario debe ser mayor a 0")
@@ -55,10 +58,6 @@ public class CuentaContable extends BaseModel {
 
     @OneToMany(mappedBy = "cuentaContable", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleAsiento> detallesAsientos = new ArrayList<>();
-
-    // @OneToMany(mappedBy = "cuentaContable", cascade = CascadeType.ALL, orphanRemoval = true)
-    // private Set<Factura> facturas;
-    
 
 }
 

@@ -94,11 +94,18 @@ public class TerceroService extends BaseService<Tercero> {
 
 
         return new TerceroResponseDTO(
-                tercero.getId(),
-                tercero.getNombre(),
-                tercero.getApellidos(),
-                tercero.getIdentificacion(),
-                facturasDTO);
-    }
-
+            tercero.getId(),
+            tercero.getNombre(),
+            tercero.getApellidos(),
+            tercero.getIdentificacion(),
+            tercero.getResponsableIVA(),
+            tercero.getNumeroIdentificacion(),
+            tercero.getTelefonoContacto(),
+            tercero.getCorreoContacto(),
+            tercero.getDireccion(),
+            tercero.getCiudad(),
+            facturasDTO
+        );
+        
+}
 }

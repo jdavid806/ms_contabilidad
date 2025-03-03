@@ -12,5 +12,11 @@ public class TerceroResponseDTO {
     private String nombre;
     private String apellidos;
     private String identificacion;
+    private Boolean responsableIVA;
+    private String numeroIdentificacion;
+    private String telefonoContacto;
+    private String correoContacto;
+    private String direccion;
+    private String ciudad;
     private List<FacturaResponseDTO> facturas;
 }

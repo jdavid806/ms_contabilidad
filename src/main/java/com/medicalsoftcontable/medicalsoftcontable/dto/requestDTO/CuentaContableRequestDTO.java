@@ -3,12 +3,13 @@ package com.medicalsoftcontable.medicalsoftcontable.dto.requestDTO;
 import java.math.BigDecimal;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.medicalsoftcontable.medicalsoftcontable.enums.TipoCuenta;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,19 +25,24 @@ public class CuentaContableRequestDTO {
     @NotEmpty(message = "El nombre de la cuenta es obligatorio")
     private String nombreCuenta;
 
+    @NotNull(message = "Debe especificar el tipo de cuenta: INGRESOS(1), EGRESOS(2), ACTIVOS(3), PASIVOS(4), PATRIMONIO(5), AJUSTES(6)")
     private TipoCuenta tipoCuenta;
 
-    @NotNull
-    @Min(1)
+    @NotNull(message = "El usuario es obligatorio")
+    @Min(value = 1, message = "El ID del usuario debe ser mayor a 0")
     private int usuarioId;
 
-    @NotNull
-    @Positive(message = "El saldo inicial debe ser mayor a 0")
+    @NotNull(message = "El saldo inicial es obligatorio")
+    @DecimalMin(value = "0.00", message = "El saldo inicial no puede ser negativo")
     private BigDecimal saldoInicial;
 
+    @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
-    
-    private Set<DetalleAsientoDTO> detallesAsientos;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Set<DetalleAsientoRequestDTO> detallesAsientos;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long facturaId;
 }
+

@@ -2,6 +2,7 @@ package com.medicalsoftcontable.medicalsoftcontable.dto.requestDTO;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -37,7 +38,6 @@ public class AsientoContableRequestDTO {
 
     private String estado;
 
-    private int usuarioId;
-
+    private List<DetalleAsientoRequestDTO> detalles;
     
 }

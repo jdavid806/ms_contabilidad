@@ -5,11 +5,13 @@ import java.math.BigDecimal;
 import com.medicalsoftcontable.medicalsoftcontable.base.BaseModel;
 import com.medicalsoftcontable.medicalsoftcontable.enums.TipoDetalles;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,21 +25,18 @@ import lombok.Setter;
 public class DetalleAsiento extends BaseModel {
 
   @NotNull
-  @NotEmpty
+  @Column(nullable = false)
   private BigDecimal monto;
 
+  @Enumerated(EnumType.STRING)
   private TipoDetalles tipo;
 
   @ManyToOne
-  @JoinColumn(name = "cuenta_contable")
-  private CuentaContable cuenta_contable;
+  @JoinColumn(name = "cuenta_contable_id", nullable = false)
+  private CuentaContable cuentaContable;
 
   @ManyToOne
-  @JoinColumn(name = "asiento_contable")
-  private AsientoContable asiento_contable;
-  
-  @ManyToOne
-    @JoinColumn(name = "cuenta_contable_id", nullable = false)
-    private CuentaContable cuentaContable;
+  @JoinColumn(name = "asiento_contable_id", nullable = false)
+  private AsientoContable asientoContable;
 
 }
