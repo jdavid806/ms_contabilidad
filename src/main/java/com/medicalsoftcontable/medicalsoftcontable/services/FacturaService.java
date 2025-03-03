@@ -10,12 +10,18 @@ import org.springframework.stereotype.Service;
 import com.medicalsoftcontable.medicalsoftcontable.base.BaseService;
 import com.medicalsoftcontable.medicalsoftcontable.dto.requestDTO.DetalleFacturaRequestDTO;
 import com.medicalsoftcontable.medicalsoftcontable.dto.requestDTO.FacturaRequestDTO;
+import com.medicalsoftcontable.medicalsoftcontable.enums.TipoDetalles;
 import com.medicalsoftcontable.medicalsoftcontable.enums.TiposProducto;
+import com.medicalsoftcontable.medicalsoftcontable.models.AsientoContable;
+import com.medicalsoftcontable.medicalsoftcontable.models.CuentaContable;
+import com.medicalsoftcontable.medicalsoftcontable.models.DetalleAsiento;
 import com.medicalsoftcontable.medicalsoftcontable.models.DetallesFactura;
 import com.medicalsoftcontable.medicalsoftcontable.models.Factura;
 import com.medicalsoftcontable.medicalsoftcontable.models.Inventario;
 import com.medicalsoftcontable.medicalsoftcontable.models.Productos;
 import com.medicalsoftcontable.medicalsoftcontable.models.Tercero;
+import com.medicalsoftcontable.medicalsoftcontable.repository.AsientoContableRepository;
+import com.medicalsoftcontable.medicalsoftcontable.repository.CuentaContableRepository;
 import com.medicalsoftcontable.medicalsoftcontable.repository.FacturaRepository;
 import com.medicalsoftcontable.medicalsoftcontable.repository.InventarioRepository;
 import com.medicalsoftcontable.medicalsoftcontable.repository.ProductoRepository;
@@ -30,20 +36,26 @@ public class FacturaService extends BaseService<Factura> {
     private final FacturaRepository facturaRepository;
     private final TerceroRepository terceroRepository;
     private final InventarioRepository inventarioRepository;
- 
+    private final CuentaContableRepository cuentaContableRepository;
+    private final AsientoContableRepository asientoContableRepository;
 
     public FacturaService(
             ProductoRepository productoRepository,
             FacturaRepository facturaRepository,
             TerceroRepository terceroRepository,
-            InventarioRepository inventarioRepository) {
+            InventarioRepository inventarioRepository,
+            CuentaContableRepository cuentaContableRepository,
+            AsientoContableRepository asientoContableRepository) {
         super(facturaRepository);
         this.facturaRepository = facturaRepository;
         this.terceroRepository = terceroRepository;
         this.inventarioRepository = inventarioRepository;
-      
+        this.cuentaContableRepository = cuentaContableRepository;
+        this.asientoContableRepository = asientoContableRepository;
+
     }
 
+    @Transactional
     public FacturaRequestDTO crearFactura(FacturaRequestDTO facturaRequestDTO) {
         Tercero tercero = terceroRepository.findById(facturaRequestDTO.getTerceroId())
                 .orElseThrow(() -> new RuntimeException("El tercero no existe"));
@@ -55,7 +67,6 @@ public class FacturaService extends BaseService<Factura> {
         factura.setEstado(facturaRequestDTO.getEstado());
         factura.setTercero(tercero);
 
-        // Inicializar totales como BigDecimal
         BigDecimal totalFactura = BigDecimal.ZERO;
         BigDecimal totalImpuestos = BigDecimal.ZERO;
         List<DetallesFactura> detalles = new ArrayList<>();
@@ -81,7 +92,6 @@ public class FacturaService extends BaseService<Factura> {
             totalFactura = totalFactura.add(subtotal).add(impuestoTotal);
             totalImpuestos = totalImpuestos.add(impuestoTotal);
 
-      
             if (!producto.getTipoProducto().equals(TiposProducto.SERVICIOS)) {
                 if (inventario.getCantidadDisponible() < detalleDTO.getCantidad()) {
                     throw new RuntimeException("Stock insuficiente para el producto: " + inventario.getId());
@@ -99,69 +109,73 @@ public class FacturaService extends BaseService<Factura> {
         factura.setImpuestos(totalImpuestos);
 
         Factura facturaGuardada = facturaRepository.save(factura);
-        inventarioRepository
-                .saveAll(detalles.stream().map(DetallesFactura::getInventario).collect(Collectors.toList()));
+        inventarioRepository.saveAll(
+                detalles.stream().map(DetallesFactura::getInventario).collect(Collectors.toList()));
+
+        AsientoContable asiento = generarAsientoContable(facturaGuardada);
+        asientoContableRepository.save(asiento);
 
         return convertirFacturaARequestDTO(facturaGuardada);
-
     }
 
-    // public FacturaRequestDTO crearFacturaCompra(FacturaRequestDTO facturaRequestDTO) {
-    //     Tercero tercero = terceroRepository.findById(facturaRequestDTO.getTerceroId())
-    //             .orElseThrow(() -> new RuntimeException("El tercero no existe"));
+    private AsientoContable generarAsientoContable(Factura factura) {
+        AsientoContable asiento = new AsientoContable();
+        asiento.setNumeroAsiento("AS-" + factura.getNumeroFactura());
+        asiento.setFechaAsiento(factura.getFecha()); 
+        asiento.setDescripcion("Asiento contable de factura " + factura.getNumeroFactura());
+        asiento.setEstado("PENDIENTE");
+        asiento.setUsuarioId(1); 
+    
+        List<DetalleAsiento> detallesAsiento = new ArrayList<>();
+        BigDecimal totalDebe = BigDecimal.ZERO;
+        BigDecimal totalHaber = BigDecimal.ZERO;
+    
+   
+        DetalleAsiento debito = new DetalleAsiento();
+        debito.setMonto(factura.getTotal());
+        debito.setTipo(TipoDetalles.DEBE);
+        debito.setCuentaContable(obtenerCuentaContable("CUENTAS_POR_COBRAR"));
+        debito.setAsientoContable(asiento);
+        detallesAsiento.add(debito);
+        totalDebe = totalDebe.add(factura.getTotal());
+    
+   
+        DetalleAsiento creditoVentas = new DetalleAsiento();
+        creditoVentas.setMonto(factura.getSubtotal());
+        creditoVentas.setTipo(TipoDetalles.HABER);
+        creditoVentas.setCuentaContable(obtenerCuentaContable("VENTAS"));
+        creditoVentas.setAsientoContable(asiento); 
+        detallesAsiento.add(creditoVentas);
+        totalHaber = totalHaber.add(factura.getSubtotal());
+    
+        
+        DetalleAsiento creditoImpuestos = new DetalleAsiento();
+        creditoImpuestos.setMonto(factura.getImpuestos());
+        creditoImpuestos.setTipo(TipoDetalles.HABER);
+        creditoImpuestos.setCuentaContable(obtenerCuentaContable("IMPUESTOS_POR_PAGAR"));
+        creditoImpuestos.setAsientoContable(asiento);  
+        detallesAsiento.add(creditoImpuestos);
+        totalHaber = totalHaber.add(factura.getImpuestos());
+    
+        asiento.setTotalDebe(totalDebe);
+        asiento.setTotalHaber(totalHaber);
+    
+        asiento.setDetallesAsientos(detallesAsiento);  
+    
+        return asiento;
+    }
+    
+    
 
-    //     Factura factura = new Factura();
-    //     factura.setNumeroFactura(facturaRequestDTO.getNumeroFactura());
-    //     factura.setFecha(facturaRequestDTO.getFecha());
-    //     factura.setTipoFactura(facturaRequestDTO.getTipoFactura());
-    //     factura.setEstado(facturaRequestDTO.getEstado());
-    //     factura.setTercero(tercero);
-
-    //     BigDecimal totalFactura = BigDecimal.ZERO;
-    //     BigDecimal totalImpuestos = BigDecimal.ZERO;
-    //     List<DetallesFactura> detalles = new ArrayList<>();
-
-    //     for (DetalleFacturaRequestDTO detalleDTO : facturaRequestDTO.getDetalles()) {
-    //         Productos producto = productoRepository.findById(detalleDTO.getProductoId())
-    //                 .orElseGet(() -> {
-                        
-    //                     ProductosRequestDTO nuevoProductoDTO = new ProductosRequestDTO();
-    //                     nuevoProductoDTO.setNombre(detalleDTO.getNombre());
-    //                     nuevoProductoDTO.setTipoProducto(detalleDTO.getTipoProducto());
-    //                     nuevoProductoDTO.setImpuestosIds(detalleDTO.getImpuestosIds());
-    //                     return createProducto(nuevoProductoDTO);
-    //                 });
-
-    //         Inventario inventario = inventarioRepository.findById(producto.getId())
-    //                 .orElseGet(() -> {
-    //                     // Si no existe en inventario, crearlo con stock 0
-    //                     Inventario nuevoInventario = new Inventario();
-    //                     nuevoInventario.setProducto(producto);
-    //                     nuevoInventario.setCantidadDisponible(0);
-    //                     return inventarioRepository.save(nuevoInventario);
-    //                 });
-
-            
-    //         inventario.setCantidadDisponible(inventario.getCantidadDisponible() + detalleDTO.getCantidad());
-    //         inventarioRepository.save(inventario);
-    //     }
-
-    //     factura.setSubtotal(totalFactura.subtract(totalImpuestos));
-    //     factura.setDetalles(detalles);
-    //     factura.setTotal(totalFactura);
-    //     factura.setImpuestos(totalImpuestos);
-
-    //     Factura facturaGuardada = facturaRepository.save(factura);
-    //     inventarioRepository
-    //             .saveAll(detalles.stream().map(DetallesFactura::getInventario).collect(Collectors.toList()));
-
-    //     return convertirFacturaARequestDTO(facturaGuardada);
-    // }
+    private CuentaContable obtenerCuentaContable(String nombre) {
+        return cuentaContableRepository.findByNombreCuenta(nombre)
+                .orElseThrow(() -> new RuntimeException("Cuenta contable no encontrada: " + nombre));
+    }
 
     public FacturaRequestDTO convertirFacturaARequestDTO(Factura factura) {
         FacturaRequestDTO facturaDTO = new FacturaRequestDTO();
         facturaDTO.setNumeroFactura(factura.getNumeroFactura());
-        facturaDTO.setFecha(new java.sql.Date(factura.getFecha().getTime())); // Conversión correcta
+        facturaDTO.setFecha(new java.sql.Date(factura.getFecha().getTime()));
         facturaDTO.setTotal(factura.getTotal());
         facturaDTO.setTipoFactura(factura.getTipoFactura());
         facturaDTO.setEstado(factura.getEstado());

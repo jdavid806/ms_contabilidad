@@ -23,8 +23,7 @@ import jakarta.transaction.Transactional;
 public class AsientoContableService extends BaseService<AsientoContable> {
 
     private final AsientoContableRepository asientoContableRepository;
-    private final CuentaContableRepository cuentaContableRepository;
-    private final DetalleAsientoRepository detalleAsientoRepository;
+ 
 
     public AsientoContableService(
         BaseRepository<AsientoContable> baseRepository, 
@@ -34,9 +33,9 @@ public class AsientoContableService extends BaseService<AsientoContable> {
     ) {
         super(baseRepository);
         this.asientoContableRepository = asientoContableRepository;
-        this.cuentaContableRepository = cuentaContableRepository;
-        this.detalleAsientoRepository = detalleAsientoRepository;
+     
     }
+    
 
     public AsientoContableResponseDTO createAsiento(AsientoContableRequestDTO request) {
         AsientoContable asiento = new AsientoContable();

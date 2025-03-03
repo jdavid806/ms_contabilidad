@@ -27,14 +27,13 @@ public class FacturaRequestDTO {
     @NotNull(message = "La fecha es obligatoria")
     private Date fecha;
 
-    private BigDecimal subtotal; 
-  
-    private BigDecimal impuestos; 
+    private BigDecimal subtotal;
 
-   @NotNull(message = "El total es obligatorio")
-@DecimalMin(value = "0.01", message = "El total debe ser mayor a 0")
-private BigDecimal total;
+    private BigDecimal impuestos;
 
+    @NotNull(message = "El total es obligatorio")
+    @DecimalMin(value = "0.01", message = "El total debe ser mayor a 0")
+    private BigDecimal total;
 
     @NotNull(message = "El tipo de factura es obligatorio")
     private TipoFactura tipoFactura;
@@ -43,7 +42,7 @@ private BigDecimal total;
     private EstadoFactura estado;
 
     @NotNull(message = "Debe definir un tercero para generar la factura")
-    private Long terceroId; 
+    private Long terceroId;
 
     private List<DetalleFacturaRequestDTO> detalles;
 }

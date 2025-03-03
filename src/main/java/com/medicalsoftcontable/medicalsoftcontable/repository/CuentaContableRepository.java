@@ -10,4 +10,5 @@ import com.medicalsoftcontable.medicalsoftcontable.models.CuentaContable;
 public interface CuentaContableRepository extends BaseRepository<CuentaContable> {
 
     Optional<CuentaContable> findByCodigoCuenta(String codigoCuenta);
+    Optional<CuentaContable> findByNombreCuenta(String nombreCuenta);
 }
