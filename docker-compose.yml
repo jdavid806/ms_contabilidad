@@ -1,33 +1,47 @@
+version: '3.8'
+
 services:
   app:
     build:
       context: .      
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8080:8080"  # Elimina esto si solo necesitas acceso interno
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/medicalsoftdb
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/medical_contable  # Corrige el nombre de la BD
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_PASSWORD: A97ce2af
     depends_on:
       db:
-        condition: service_healthy  # Espera que la base de datos esté lista antes de iniciar
+        condition: service_healthy
+    networks:
+      - medicalsoft_network
 
   db:
     image: postgres:13
     container_name: medicalsoftdb
-    restart: always  # Asegura que el contenedor se reinicie si falla
+    restart: always
     environment:
-      POSTGRES_DB: medicalsoftdb
+      POSTGRES_DB: medical_contable  # Asegurar que coincida con la app
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: A97ce2af
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data  # Persistencia de datos
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       retries: 5
       start_period: 5s
+    command: ["postgres", "-c", "log_statement=all"]  # Asegura que los cambios de env surtan efecto
+    networks:
+      - medicalsoft_network
+
+volumes:
+  pgdata:
+
+networks:
+  medicalsoft_network:
+    driver: bridge
 
