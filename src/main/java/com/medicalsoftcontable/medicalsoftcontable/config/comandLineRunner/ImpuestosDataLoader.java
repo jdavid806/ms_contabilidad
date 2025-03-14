@@ -1,5 +1,7 @@
 package com.medicalsoftcontable.medicalsoftcontable.config.comandLineRunner;
 
+import com.medicalsoftcontable.medicalsoftcontable.core.general.models.Impuestos;
+import com.medicalsoftcontable.medicalsoftcontable.core.general.repository.ImpuestoRepository;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.medicalsoftcontable.medicalsoftcontable.models.Impuestos;
-import com.medicalsoftcontable.medicalsoftcontable.repository.ImpuestoRepository;
+
 
 @Component
 public class ImpuestosDataLoader implements CommandLineRunner {
